@@ -9,7 +9,7 @@ from src.container import app_config
 api = Api(title='Auth service', doc='/docs')
 
 
-def create_app(config: app_config, rest_api: Api) -> Flask:
+def create_app(config: AppConfig, rest_api: Api) -> Flask:
     application = Flask(__name__)
     application.config.from_object(config)
     register_extensions(application, rest_api)
