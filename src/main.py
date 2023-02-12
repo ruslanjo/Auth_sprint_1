@@ -3,7 +3,7 @@ from flask_restx import Api
 
 from core.config import AppConfig
 from views.auth_view import auth_ns
-from src.db import db
+from src.db import db, init_db
 from src.container import app_config
 
 api = Api(title='Auth service', doc='/docs')
@@ -17,7 +17,7 @@ def create_app(config: app_config, rest_api: Api) -> Flask:
 
 
 def register_extensions(application: Flask, rest_api: Api):
-    db.init_app(application)
+    init_db(application)
     application.app_context().push()
     db.create_all()
     rest_api.init_app(application)

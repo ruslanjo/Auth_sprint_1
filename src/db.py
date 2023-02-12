@@ -1,5 +1,8 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from src.container import app_config
+from flask import Flask
 
 db = SQLAlchemy()
+
+def init_db(application: Flask):
+    db.init_app(application)
+    from src.models.user import User
