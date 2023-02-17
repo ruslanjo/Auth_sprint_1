@@ -2,7 +2,7 @@ import http
 import json
 
 from flask_restx import Namespace, Resource
-from flask import, request
+from flask import request
 
 from src.container import role_service
 from src.models.user import role_schema, roles_schema
