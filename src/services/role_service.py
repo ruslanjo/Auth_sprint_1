@@ -5,12 +5,12 @@ import sqlalchemy.exc
 from pydantic import ValidationError
 
 from src.models.user import Role
-from src.dao.user_dao import BaseDAO
+from src.dao.role_dao import BaseRoleDAO
 from src.models.user import role_schema
 
 
 class RoleService:
-    def __init__(self, user_dao: BaseDAO):
+    def __init__(self, user_dao: BaseRoleDAO):
         self.dao = user_dao
 
     def _validate_request_data(self, request_data: dict) -> tuple[bool, str | None]:

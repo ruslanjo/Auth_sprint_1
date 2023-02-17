@@ -1,8 +1,7 @@
-from src.dao.user_dao import RoleDao
-from src.services.user_service import RoleService
+from src.dao.role_dao import RoleDao
+from src.services.role_service import RoleService
 from src.core.config import AppConfig
 from src.db import db
-from src.models.user import RoleSchema
 
 app_config = AppConfig()
 

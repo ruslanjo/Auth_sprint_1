@@ -3,7 +3,7 @@ from flask_restx import Api
 
 from src.core.config import AppConfig
 from src.views.auth_view import auth_ns
-from src.views.user_view import roles_management_ns
+from src.views.role_view import roles_management_ns
 from src.db import db, init_db
 from src.container import app_config
 

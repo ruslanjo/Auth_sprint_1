@@ -7,7 +7,7 @@ from src.models.user import Role
 from src.db import db
 
 
-class BaseDAO(abc.ABC):
+class BaseRoleDAO(abc.ABC):
     @abc.abstractmethod
     def get_one(self, uuid: str) -> db.Model | None:
         pass
@@ -32,7 +32,7 @@ class BaseDAO(abc.ABC):
         pass
 
 
-class RoleDao(BaseDAO):
+class RoleDao(BaseRoleDAO):
     def __init__(self, db_session: Session):
         self.session = db_session
 
