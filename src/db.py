@@ -2,12 +2,13 @@ import redis
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 
+from src.models.user import User, Role
+
 db = SQLAlchemy()
 
 
 def init_db(application: Flask):
-    db.init_app(application)
-    from src.models.user import User
+    db.init_app(application)    
 
 
 class RedisConnection:
