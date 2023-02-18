@@ -3,8 +3,8 @@ import abc
 import sqlalchemy.exc
 from flask_sqlalchemy.session import Session
 
-from src.models.user import Role
 from src.db import db
+from src.models.user import Role
 
 
 class BaseRoleDAO(abc.ABC):

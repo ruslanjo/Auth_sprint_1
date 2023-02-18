@@ -1,9 +1,10 @@
 import base64
 import calendar
 import datetime
-import hmac
-import jwt
 import hashlib
+import hmac
+
+import jwt
 
 SALT = b'blablabla'
 HASH_NAME = 'sha256'

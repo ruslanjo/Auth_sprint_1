@@ -2,9 +2,9 @@ import uuid
 from datetime import datetime
 
 from marshmallow import Schema, fields
-
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from src.db import db
 
 user_role = db.Table(
