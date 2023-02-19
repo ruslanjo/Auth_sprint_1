@@ -55,7 +55,7 @@ class UserRoleManagementView(Resource):
         if role_id:
             result = role_service.assign_role(user_id, role_id)
             if result:
-                return '', http.HTTPStatus.OK
+                return '', http.HTTPStatus.CREATED
         return json.dumps({'message': 'role was not assigned'}), http.HTTPStatus.BAD_REQUEST
 
     def delete(self, user_id: str):

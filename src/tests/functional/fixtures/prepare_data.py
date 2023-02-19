@@ -4,6 +4,19 @@ from src.tests.functional.settings.role_settings import (superuser_id, superuser
                                                          role_1_id, role_2_id, role_1_name, role_2_name)
 
 
+def prepare_ids_in_query(ids: list) -> str:
+    res = ""
+    res += '('
+
+    for idx, uuid in enumerate(ids, start=1):
+        res += f"\'{uuid}\'"
+
+        if idx != len(ids):
+            res += ', '
+    res += ')'
+    return res
+
+
 @pytest.fixture(scope='session', autouse=True)
 def create_superuser(postgres_cursor, postgres_conn):
     create_superuser_query = f'''
@@ -38,6 +51,9 @@ def fill_roles(postgres_cursor, postgres_conn):
 @pytest.fixture(scope='session', autouse=True)
 def clean_data(postgres_cursor, postgres_conn):
     yield None
+    from src.tests.functional.src.test_roles import roles_to_del
+    roles_to_del.extend([role_1_id, role_2_id])
+    role_uuids_to_del = prepare_ids_in_query(roles_to_del)
     delete_superuser_query = f'''
     delete from users
     where login = '{superuser_login}'
@@ -45,11 +61,11 @@ def clean_data(postgres_cursor, postgres_conn):
     delete_user_role_query = f'''
     delete from user_role
     where user_id = '{superuser_id}'
-      and role_id in ('{role_1_id}', '{role_2_id}')
+      and role_id in {role_uuids_to_del}
     '''
     delete_role_query = f'''
     delete from roles
-    where id in ('{role_1_id}', '{role_2_id}')
+    where id in {role_uuids_to_del}
     '''
     postgres_cursor.execute(delete_user_role_query)
     postgres_cursor.execute(delete_superuser_query)

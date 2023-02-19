@@ -51,10 +51,13 @@ def make_post_request(aiohttp_session):
 
 @pytest.fixture
 def make_delete_request(aiohttp_session):
-    async def inner(endpoint: str, query_data: dict = None):
+    async def inner(endpoint: str, body: dict = None, query_data: dict = None):
         url = configure_url_params(endpoint, query_data)
 
-        async with aiohttp_session.delete(url, ssl=False) as response:
+        if not body:
+            body = {}  # needed to pass to aiohttp delete request
+
+        async with aiohttp_session.delete(url, json=body, ssl=False) as response:
             body = await response.json()
             response_obj = {
                 'status': response.status,
