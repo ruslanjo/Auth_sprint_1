@@ -49,4 +49,35 @@ def make_post_request(aiohttp_session):
     return inner
 
 
+@pytest.fixture
+def make_delete_request(aiohttp_session):
+    async def inner(endpoint: str, query_data: dict = None):
+        url = configure_url_params(endpoint, query_data)
+
+        async with aiohttp_session.delete(url, ssl=False) as response:
+            body = await response.json()
+            response_obj = {
+                'status': response.status,
+                'body': body
+            }
+        return response_obj
+    return inner
+
+
+@pytest.fixture
+def make_put_request(aiohttp_session):
+    async def inner(endpoint: str, body: dict, query_data: dict = None):
+        url = configure_url_params(endpoint, query_data)
+
+        async with aiohttp_session.put(url, json=body, ssl=False) as response:
+            body = await response.json()
+            response_obj = {
+                'status': response.status,
+                'body': body
+            }
+        return response_obj
+    return inner
+
+
+
 
