@@ -80,7 +80,7 @@ class RefreshTokenView(Resource):
         if not new_tokens:
             return {'message': 'refresh token is invalid'}, 403
 
-        return new_tokens, 201
+        return {'access_token': new_tokens[0], 'refresh_token': new_tokens[1]}, 201
 
 
 @auth_ns.route('/logout')
@@ -110,3 +110,5 @@ class LogoutView(Resource):
         auth_service.logout(access_token, refresh_token)
 
         return {'message': 'Logged out successfully.'}, 200
+
+

@@ -83,4 +83,28 @@ class AuthService:
             )
         return None
 
+    def logout(self, access_token: str, refresh_token: str) ->  None:
+        access_token_lifetime = self.jwt_config['access_token_lifetime']
+        check_access = self.token_generator.check_jwt_token(access_token)
+        check_refresh = self.token_generator.check_jwt_token(refresh_token)
+
+        if not check_access.get('result') and not check_refresh.get('result'):
+            return None
+
+        if check_access.get('result'):
+            user_login = check_access.get('data').get('login')
+            self.redis.set_key(
+                'access_token_' + str(user_login),
+                access_token,
+                access_token_lifetime,
+            )
+            self.redis.delete_key('refresh_token_' + str(user_login))
+
+        if check_refresh.get('result'):
+            user_login = check_refresh.get('data').get('login')
+            self.redis.delete_key('refresh_token_' + str(user_login))
+
+
+
+
 
