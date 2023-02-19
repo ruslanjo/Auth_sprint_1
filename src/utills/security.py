@@ -57,14 +57,14 @@ class TokenGenerator:
         return jwt.encode(data, secret, algorithm=algo)
 
     @staticmethod
-    def check_jwt_token(refresh_token: str) -> dict:
+    def check_jwt_token(token: str) -> dict:
         try:
-            refresh_token_data = jwt.decode(
-                refresh_token,
+            token_data = jwt.decode(
+                token,
                 secret,
                 algorithms=[algo]
             )
         except (jwt.exceptions.ExpiredSignatureError, jwt.exceptions.DecodeError):
-            return {'result': False, 'msg': 'Refresh token has expired'}
+            return {'result': False, 'msg': 'Token not valid'}
         else:
-            return {'result': True, 'msg': 'Token valid', 'data': refresh_token_data}
+            return {'result': True, 'msg': 'Token valid', 'data': token_data}
