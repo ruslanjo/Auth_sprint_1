@@ -39,7 +39,7 @@ def make_post_request(aiohttp_session):
     async def inner(endpoint: str, body: dict, query_data: dict = None):
         url = configure_url_params(endpoint, query_data)
 
-        async with aiohttp_session.post(url, json=json.dumps(body), ssl=False) as response:
+        async with aiohttp_session.post(url, json=body, ssl=False) as response:
             body = await response.json()
             response_obj = {
                 'status': response.status,

@@ -1,8 +1,18 @@
+import asyncio
+
 import psycopg2
 import pytest
 import aiohttp
 
 from src.container import app_config
+
+
+@pytest.fixture(scope='session', autouse=True)
+async def event_loop():
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(scope='session', autouse=True)
