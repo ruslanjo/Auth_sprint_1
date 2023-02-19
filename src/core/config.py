@@ -18,7 +18,8 @@ class AppConfig(pydantic.BaseSettings):
     db_host: str = Field('localhost', env='POSTGRES_HOST')
     db_port: str = Field('5432', env='POSTGRES_PORT')
     db_name: str = Field('auth_service_db', env='AUTH_SERVICE_DB_NAME')
-    a: str = str(db_port)
+
+    service_url: str = 'http://localhost:8080'
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):
