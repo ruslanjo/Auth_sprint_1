@@ -8,18 +8,21 @@ class JWTSettings(pydantic.BaseSettings):
 
 
 class RedisSettings(pydantic.BaseSettings):
-    host: str = Field(default='127.0.0.1', env='REDIS_HOST')
+    host: str = Field(default='redis', env='REDIS_HOST')
     port: int = Field(default=6379, env='REDIS_PORT')
+
+    class Config:
+        env_file = '../.environments.stage/.env.auth'
 
 
 class AppConfig(pydantic.BaseSettings):
-    db_username: str = Field('app', env='POSTGRES_USERNAME')
-    db_password: str = Field('123qwe', env='POSTGRES_PASSWORD')
+    db_username: str = Field('postgres', env='POSTGRES_USERNAME')
+    db_password: str = Field('qwe123', env='POSTGRES_PASSWORD')
     db_host: str = Field('localhost', env='POSTGRES_HOST')
     db_port: str = Field('5432', env='POSTGRES_PORT')
     db_name: str = Field('auth_service_db', env='AUTH_SERVICE_DB_NAME')
 
-    service_url: str = 'http://localhost:8080'
+    service_url: str = Field('http://127.0.0.1:8080', env='SERVICE_URI')
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):

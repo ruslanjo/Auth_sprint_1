@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: postgres_db
+    image: postgres:13
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file: &env_file
+      - .environments.stage/.env.auth
+    volumes:
+      - myapp_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    container_name: redis
+    image: redis:7.0-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:1.19.2
+    container_name: nginx
+    volumes:
+      - ./nginx/configs/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/configs/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - auth_api
+    ports:
+      - "80:80"
+
+  auth_api:
+    container_name: auth_api
+    build:
+      context: .
+    restart: always
+    env_file: *env_file
+    ports:
+      - "8080:8080"
+    volumes:
+      - myapp_static_data:/app/static
+    depends_on:
+      - redis
+      - postgres
+
+  auth_api_test:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    env_file: *env_file
+    depends_on:
+      - auth_api
+      - redis
+      - postgres
+    command: pytest app/src/tests/functional/
+
+volumes:
+  myapp_postgres_data:
+  myapp_static_data:

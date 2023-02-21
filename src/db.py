@@ -2,6 +2,7 @@ import redis
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 
 
@@ -12,7 +13,7 @@ def init_db(application: Flask):
 
 class RedisConnection:
     def __init__(self):
-        self.host = '0.0.0.0'
+        self.host = 'redis'
         self.port = 6379
         self.connection = redis.Redis(
             host=self.host,
