@@ -13,7 +13,7 @@ def init_db(application: Flask):
 
 class RedisConnection:
     def __init__(self):
-        self.host = 'redis'
+        self.host = 'localhost'
         self.port = 6379
         self.connection = redis.Redis(
             host=self.host,

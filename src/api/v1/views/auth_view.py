@@ -2,7 +2,7 @@ from flask_restx import Namespace, Resource, reqparse
 
 from src.container import auth_service, user_dao
 
-auth_ns = Namespace('auth')
+auth_ns = Namespace('api/v1/auth')
 
 
 @auth_ns.route('/signup')

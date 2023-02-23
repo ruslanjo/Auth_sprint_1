@@ -1,16 +1,16 @@
-import time
-
 from flask import Flask
 from flask_restx import Api
+from flask_migrate import Migrate
 
 from src.container import app_config
 from src.core.config import AppConfig
+from src.utills.cli import register_cli
 from src.db import db, init_db
-from src.models.user import User, Role
-from src.views.auth_view import auth_ns
-from src.views.role_view import roles_management_ns
+from src.api.v1.views.auth_view import auth_ns
+from src.api.v1.views.role_view import roles_management_ns
 
 api = Api(title='Auth service', doc='/docs')
+migrate = Migrate()
 
 
 def create_app(config: AppConfig, rest_api: Api) -> Flask:
@@ -22,9 +22,7 @@ def create_app(config: AppConfig, rest_api: Api) -> Flask:
 
 def register_extensions(application: Flask, rest_api: Api):
     init_db(application)
-    application.app_context().push()
-    db.drop_all()
-    db.create_all()
+    migrate.init_app(application, db)
 
     rest_api.init_app(application)
     rest_api.add_namespace(auth_ns)
@@ -32,16 +30,7 @@ def register_extensions(application: Flask, rest_api: Api):
 
 
 app = create_app(app_config, api)
-
-# user_1 = User(login='usermuser', password='123')
-# role_1 = Role(name='cool guy')
-# role_2 = Role(name='bad guy')
-# user_1.roles.append(role_1)
-# user_1.roles.append(role_2)
-# db.session.add_all([user_1, role_1, role_2])
-# db.session.commit()
-#
-# uu = db.session.query(User).first().id
+register_cli(app, db)
 
 
 if __name__ == '__main__':

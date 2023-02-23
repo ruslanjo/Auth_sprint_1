@@ -10,8 +10,8 @@ from src.db import db
 user_role = db.Table(
     'user_role',
     db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
-    db.Column('user_id', UUID, db.ForeignKey('users.id')),
-    db.Column('role_id', UUID, db.ForeignKey('roles.id'))
+    db.Column('user_id', UUID, db.ForeignKey('users.id', ondelete='CASCADE')),
+    db.Column('role_id', UUID, db.ForeignKey('roles.id', ondelete='CASCADE'))
 )
 
 
@@ -26,12 +26,12 @@ class User(db.Model):
         nullable=False
     )
     login = db.Column(
-        db.String,
+        db.String(100),
         unique=True,
         nullable=False
     )
     password = db.Column(
-        db.String,
+        db.String(70),
         nullable=False
     )
 
@@ -49,23 +49,25 @@ class LoginHistory(db.Model):
     user_id = db.Column(
         UUID(as_uuid=True),
         db.ForeignKey(
-            'users.id'
-        )
+            'users.id',
+            ondelete='CASCADE'
+        ),
+        nullable=False,
     )
     timestamp = db.Column(
         db.DateTime,
         default=datetime.now()
     )
 
-    user = relationship("User")
+    user = relationship("User", cascade='all, delete', passive_deletes=True)
     
     
 class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    name = db.Column(db.String, unique=True, nullable=False)
-    users = db.relationship('User', secondary=user_role, backref='roles')
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    users = db.relationship('User', secondary=user_role, backref='roles', cascade='all, delete', passive_deletes=True)
 
     def __repr__(self):
         return f'<Role {self.name}>'

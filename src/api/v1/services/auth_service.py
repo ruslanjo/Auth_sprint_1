@@ -1,6 +1,6 @@
 from typing import Any
 
-from src.dao.user_dao import UserDAO
+from src.api.v1.dao.user_dao import UserDAO
 from src.db import RedisConnection
 
 
@@ -42,8 +42,10 @@ class AuthService:
         check_password = self.password_hasher.compare_passwords(password, user.password)
         if not check_password:
             return None
+
+        user_roles = ', '.join(role.name for role in user.roles)
         access_token, refresh_token = self.create_new_jwt_tokens(
-            login,
+            login, user_roles
         )
         self.user_dao.add_login_history(
             user.id
@@ -53,10 +55,11 @@ class AuthService:
             "refresh_token": refresh_token
         }
 
-    def create_new_jwt_tokens(self, login: str) -> tuple:
+    def create_new_jwt_tokens(self, login: str, roles: str) -> tuple:
         refresh_token_lifetime = self.jwt_config['refresh_token_lifetime']
         access, refresh = self.token_generator.generate_refresh_and_access_tokens(
-            {'login': login}
+            {'login': login,
+             'roles': roles}
         )
         self.redis.set_key(
             'refresh_token_' + str(login),
@@ -79,7 +82,7 @@ class AuthService:
         result['user_id'] = user_id
         if refresh_on_cache.decode('utf-8') == refresh_token:
             return self.create_new_jwt_tokens(
-                login=request_user_login,
+                login=request_user_login, roles=result.get('roles')
             )
         return None
 
@@ -103,8 +106,3 @@ class AuthService:
         if check_refresh.get('result'):
             user_login = check_refresh.get('data').get('login')
             self.redis.delete_key('refresh_token_' + str(user_login))
-
-
-
-
-

@@ -16,13 +16,16 @@ class RedisSettings(pydantic.BaseSettings):
 
 
 class AppConfig(pydantic.BaseSettings):
-    db_username: str = Field('postgres', env='POSTGRES_USERNAME')
+    db_username: str = Field('app', env='POSTGRES_USERNAME')
     db_password: str = Field('qwe123', env='POSTGRES_PASSWORD')
     db_host: str = Field('localhost', env='POSTGRES_HOST')
     db_port: str = Field('5432', env='POSTGRES_PORT')
     db_name: str = Field('auth_service_db', env='AUTH_SERVICE_DB_NAME')
 
     service_url: str = Field('http://127.0.0.1:8080', env='SERVICE_URI')
+    superuser_username: str = Field('superuser', env='SUPERUSER_USERNAME')
+    superuser_password: str = Field('superuser', env='SUPERUSER_PASSWORD')
+    superuser_role: str = Field('superuser', env='SUPERUSER_ROLE')
 
     @property
     def SQLALCHEMY_DATABASE_URI(self):
