@@ -1,8 +1,8 @@
 import marshmallow
 import sqlalchemy.exc
 
-from src.dao.role_dao import RoleDao
-from src.dao.user_dao import UserDAO
+from src.api.v1.dao.role_dao import RoleDao
+from src.api.v1.dao.user_dao import UserDAO
 from src.models.user import Role, role_schema
 
 
