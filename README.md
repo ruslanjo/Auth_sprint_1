@@ -14,3 +14,6 @@ make stop_tests     - Остановить тесты.
 
 
 ### Используемые технологии: Python 3.10, Redis, PostgreSQL, Docker, Flask.
+
+* Разработчик auth: @Vadim3x4
+* Разработчик roles-management: @ruslanjo
