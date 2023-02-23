@@ -75,7 +75,7 @@ class AuthService:
 
         request_user_login = result.get('data').get('login')
         user_id = self.user_dao.get_user(request_user_login).id
-        refresh_on_cache = self.redis.get_key('refresh_token_'+request_user_login)
+        refresh_on_cache = self.redis.get_key('refresh_token_' + request_user_login)
         if not refresh_on_cache:
             return None
 
@@ -86,7 +86,7 @@ class AuthService:
             )
         return None
 
-    def logout(self, access_token: str, refresh_token: str) ->  None:
+    def logout(self, access_token: str, refresh_token: str) -> None:
         access_token_lifetime = self.jwt_config['access_token_lifetime']
         check_access = self.token_generator.check_jwt_token(access_token)
         check_refresh = self.token_generator.check_jwt_token(refresh_token)
@@ -106,3 +106,7 @@ class AuthService:
         if check_refresh.get('result'):
             user_login = check_refresh.get('data').get('login')
             self.redis.delete_key('refresh_token_' + str(user_login))
+
+    def login_history(self, login: str) -> list[dict]:
+        user_history = self.user_dao.get_login_history(login=login)
+        return user_history

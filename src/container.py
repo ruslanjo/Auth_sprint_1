@@ -11,9 +11,7 @@ from src.utills.security import PasswordHasher, TokenGenerator
 app_config = AppConfig()
 jwt_settings = JWTSettings()
 token_generator = TokenGenerator(jwt_settings)
-#print(token_generator.check_jwt_token('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6InJ1c2xhbiIsInJvbGVzIjoiIiwiZXhwIjoxNjc3MTgyNzUxfQ.VtQ5LjXP9Xnk0acfDqOwVDO5FUXSyneZWz2GUovACPg'))
 password_hasher = PasswordHasher()
-print(base64.b64decode(password_hasher.hash_password('123')))
 
 # MVC
 role_dao = RoleDao(db.session)

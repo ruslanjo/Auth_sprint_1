@@ -1,3 +1,5 @@
+import http
+
 from flask_restx import Namespace, Resource, reqparse
 
 from src.container import auth_service, user_dao
@@ -27,11 +29,11 @@ class SignUpView(Resource):
         password = args['password']
 
         if user_dao.get_user(login):
-            return {'message': 'User already exists'}, 400
+            return {'message': 'User already exists'}, http.HTTPStatus.BAD_REQUEST
 
         auth_service.signup(login, password)
 
-        return {'message': 'User created successfully'}, 201
+        return {'message': 'User created successfully'}, http.HTTPStatus.CREATED
 
 
 @auth_ns.route('/login')
@@ -58,8 +60,8 @@ class LoginView(Resource):
 
         authy = auth_service.login(login, password)
         if not authy:
-            return {"message": "Incorrect username or password"}, 401
-        return authy, 200
+            return {"message": "Incorrect username or password"}, http.HTTPStatus.UNAUTHORIZED
+        return authy, http.HTTPStatus.OK
 
 
 @auth_ns.route('/refresh')
@@ -78,9 +80,9 @@ class RefreshTokenView(Resource):
 
         new_tokens = auth_service.get_refresh_token(refresh_token)
         if not new_tokens:
-            return {'message': 'refresh token is invalid'}, 403
+            return {'message': 'refresh token is invalid'}, http.HTTPStatus.FORBIDDEN
 
-        return {'access_token': new_tokens[0], 'refresh_token': new_tokens[1]}, 201
+        return {'access_token': new_tokens[0], 'refresh_token': new_tokens[1]}, http.HTTPStatus.CREATED
 
 
 @auth_ns.route('/logout')
@@ -105,10 +107,28 @@ class LogoutView(Resource):
         refresh_token = args['refresh_token']
 
         if not access_token or not refresh_token:
-            return {'message': 'Access and refresh tokens are required.'}, 400
+            return {'message': 'Access and refresh tokens are required.'}, http.HTTPStatus.NOT_FOUND
 
         auth_service.logout(access_token, refresh_token)
 
-        return {'message': 'Logged out successfully.'}, 200
+        return {'message': 'Logged out successfully.'}, http.HTTPStatus.OK
 
 
+@auth_ns.route('/user_history')
+class LoginHistory(Resource):
+    @staticmethod
+    def post():
+        login_parser = reqparse.RequestParser()
+        login_parser.add_argument(
+            'login',
+            type=str,
+            required=True,
+            help='The user\'s login'
+        )
+        args = login_parser.parse_args()
+        login: str = args.get('login')
+
+        user_history = auth_service.login_history(login)
+        if not user_history:
+            return {"message": "History user not found"}, http.HTTPStatus.NOT_FOUND
+        return user_history, http.HTTPStatus.OK

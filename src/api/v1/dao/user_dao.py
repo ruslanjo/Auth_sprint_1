@@ -42,6 +42,14 @@ class UserDAO(BaseUser):
         self.session.add(login_history)
         self.session.commit()
 
+    def get_login_history(self, login: str) -> list[dict]:
+        user = self.get_user(login=login)
+        history_datetime = [
+            str(item.timestamp) for item in self.session.query(LoginHistory).filter(LoginHistory.user_id == user.id)
+        ]
+        history = [{login: history_datetime}]
+        return history
+
     def update(self, updated_entity: User):
         self.session.add(updated_entity)
         self.session.commit()
