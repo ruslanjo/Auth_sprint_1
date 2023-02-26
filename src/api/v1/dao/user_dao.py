@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from uuid import uuid4
 
-from src.models.user import LoginHistory, User
+from src.models.user import LoginHistory, User, SocialAccount
 
 
 class BaseUser(ABC):
@@ -29,6 +29,15 @@ class UserDAO(BaseUser):
 
     def get_user(self, login: str) -> [None | tuple[str, str]]:
         return self.session.query(User).filter(User.login == login).first()
+
+    def get_user_by_social_account(self, social_account_user_id: str, provider: str) -> SocialAccount:
+        return self.session.query(SocialAccount).filter(SocialAccount.social_id == social_account_user_id,
+                                                        SocialAccount.provider_name == provider).first()
+
+    def create_social_account(self, new_user: SocialAccount) -> SocialAccount:
+        self.session.add(new_user)
+        self.session.commit()
+        return new_user
 
     def get_user_by_uuid(self, uuid: str) -> None | User:
         return self.session.get(User, uuid)

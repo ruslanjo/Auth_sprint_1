@@ -1,7 +1,9 @@
 from typing import Any
 
 from src.api.v1.dao.user_dao import UserDAO
+from src.models.user import SocialAccount
 from src.db import RedisConnection
+from src.container import oauth_managers
 
 
 class AuthService:
@@ -54,6 +56,32 @@ class AuthService:
             "access_token": access_token,
             "refresh_token": refresh_token
         }
+
+    def oauth_login(self, provider: str, auth_code: str):
+        oauth_manager = oauth_managers.get(provider)
+        if not oauth_manager:
+            return None
+
+        token_data = oauth_manager.get_tokens(auth_code)
+        if not token_data:
+            return None
+        # TODO добавить пуш рефреш токена в редис
+        user_data = oauth_manager.exchange_token_on_data(token_data['access_token'])
+        social_acc_uid = user_data.get(oauth_manager.user_id_api_field)
+        user = self.user_dao.get_user_by_social_account(social_acc_uid, provider)
+
+        if not user:
+            self.oauth_create_user(social_acc_uid, provider)
+
+        # TODO добавить ниже выдачу access и рефреш токенов
+
+    def oauth_create_user(self, uid: str, provider: str):
+        new_user = SocialAccount(
+            provider_name=provider,
+            social_id=uid
+        )
+        return self.user_dao.create_social_account(new_user)
+
 
     def create_new_jwt_tokens(self, login: str, roles: str) -> tuple:
         refresh_token_lifetime = self.jwt_config['refresh_token_lifetime']

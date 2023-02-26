@@ -14,6 +14,13 @@ user_role = db.Table(
     db.Column('role_id', UUID, db.ForeignKey('roles.id', ondelete='CASCADE'))
 )
 
+social_account_role = db.Table(
+    'social_account_role',
+    db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False),
+    db.Column('social_account_id', UUID, db.ForeignKey('social_accounts.id', ondelete='CASCADE')),
+    db.Column('role_id', UUID, db.ForeignKey('roles.id', ondelete='CASCADE'))
+)
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -61,13 +68,33 @@ class LoginHistory(db.Model):
 
     user = relationship("User", cascade='all, delete', passive_deletes=True)
     
-    
+
+class SocialAccount(db.Model):
+    __tablename__ = 'social_accounts'
+    __table_args__ = (db.UniqueConstraint('social_id', 'provider_name', name='social_pk'),)
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    email = db.Column(db.String(100))
+    phone = db.Column(db.String(30))
+    login = db.Column(db.String(100))
+    social_id = db.Column(db.Text, nullable=False)
+    provider_name = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f'<SocialAccount {self.provider_name}:{self.social_id}>'
+
+
 class Role(db.Model):
     __tablename__ = 'roles'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = db.Column(db.String(100), unique=True, nullable=False)
     users = db.relationship('User', secondary=user_role, backref='roles', cascade='all, delete', passive_deletes=True)
+    social_accounts = db.relationship('SocialAccounts',
+                                      secondary=social_account_role,
+                                      backref='roles',
+                                      cascade='all, delete',
+                                      passive_deletes=True)
 
     def __repr__(self):
         return f'<Role {self.name}>'
