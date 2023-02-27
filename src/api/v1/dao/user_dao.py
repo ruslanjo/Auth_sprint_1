@@ -2,7 +2,10 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from uuid import uuid4
 
-from src.models.user import LoginHistory, User
+from sqlalchemy.sql import text
+from user_agents import parse
+
+from src.models.user import UserSignIn, User
 
 
 class BaseUser(ABC):
@@ -33,19 +36,30 @@ class UserDAO(BaseUser):
     def get_user_by_uuid(self, uuid: str) -> None | User:
         return self.session.get(User, uuid)
 
-    def add_login_history(self, user_id: int) -> None:
-        login_history = LoginHistory(
-            uuid=str(uuid4()),
+    def add_login_history(self, user_id: int, user_agent) -> None:
+        user_agent = parse(user_agent)
+        if user_agent.is_mobile or user_agent.is_tablet:
+            device_type = 'mobile'
+        elif user_agent.is_pc:
+            device_type = 'web'
+        else:
+            device_type = 'smart'
+
+        login_history = UserSignIn(
             user_id=user_id,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
+            user_agent=str(user_agent),
+            user_device_type=device_type
         )
+
         self.session.add(login_history)
         self.session.commit()
 
     def get_login_history(self, login: str) -> list[dict]:
         user = self.get_user(login=login)
         history_datetime = [
-            str(item.timestamp) for item in self.session.query(LoginHistory).filter(LoginHistory.user_id == user.id)
+            {str(item.timestamp): {item.user_device_type: item.user_agent}} for item in
+            self.session.query(UserSignIn).filter(UserSignIn.user_id == user.id)
         ]
         history = [{login: history_datetime}]
         return history

@@ -1,6 +1,7 @@
 PROJECT_NAME = auth_api
 DOCKER_COMPOSE_FILE = docker-compose.yml
 DOCKER_COMPOSE_FILE_TESTS = docker-compose.tests.yml
+DOCKER_COMPOSE_FILE_DEV = docker-compose.dev.yml
 
 .PHONY: all run_tests stop_tests run logs rebuild stop
 
@@ -29,3 +30,6 @@ rebuild:
 
 stop:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down
+
+dev:
+	docker-compose -f $(DOCKER_COMPOSE_FILE_DEV) up --build -d
