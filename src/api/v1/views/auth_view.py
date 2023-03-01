@@ -4,6 +4,8 @@ from flask import request
 from flask_restx import Namespace, Resource, reqparse
 
 from src.api_container import auth_service, user_dao
+from user_agents import parse
+
 
 auth_ns = Namespace('api/v1/auth')
 
@@ -65,6 +67,7 @@ class OauthSignUpView(Resource):
 class LoginView(Resource):
     @staticmethod
     def post():
+        user_agent = request.headers.get('User-Agent')
         login_parser = reqparse.RequestParser()
         login_parser.add_argument(
             'login',
@@ -83,7 +86,7 @@ class LoginView(Resource):
         login: str = args.get('login')
         password: str = args.get('password')
 
-        authy = auth_service.login(login, password)
+        authy = auth_service.login(login, password, user_agent)
         if not authy:
             return {"message": "Incorrect username or password"}, http.HTTPStatus.UNAUTHORIZED
         return authy, http.HTTPStatus.OK

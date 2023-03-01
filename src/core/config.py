@@ -16,7 +16,7 @@ class RedisSettings(pydantic.BaseSettings):
 
 
 class AppConfig(pydantic.BaseSettings):
-    db_username: str = Field('app', env='POSTGRES_USERNAME')
+    db_username: str = Field('postgres', env='POSTGRES_USERNAME')
     db_password: str = Field('qwe123', env='POSTGRES_PASSWORD')
     db_host: str = Field('localhost', env='POSTGRES_HOST')
     db_port: str = Field('5432', env='POSTGRES_PORT')
