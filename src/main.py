@@ -28,9 +28,6 @@ def create_app(config: AppConfig, rest_api: Api) -> Flask:
 def register_extensions(application: Flask, rest_api: Api):
     init_db(application)
     migrate.init_app(application, db)
-    application.app_context().push()
-    db.drop_all()
-    db.create_all()
     rest_api.init_app(application)
     rest_api.add_namespace(auth_ns)
     rest_api.add_namespace(roles_management_ns)
