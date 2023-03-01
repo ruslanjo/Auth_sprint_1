@@ -4,7 +4,7 @@ import psycopg2
 import pytest
 import aiohttp
 
-from src.container import app_config
+from src.api_container import app_config
 
 
 @pytest.fixture(scope='session', autouse=True)

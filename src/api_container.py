@@ -1,6 +1,6 @@
-import base64
+from dotenv import load_dotenv
 
-from src.core.config import AppConfig, JWTSettings
+from src.core.config import AppConfig, JWTSettings, OAuthConfig
 from src.api.v1.dao.role_dao import RoleDao
 from src.api.v1.dao.user_dao import UserDAO
 from src.db import db
@@ -8,8 +8,11 @@ from src.api.v1.services.auth_service import AuthService
 from src.api.v1.services.role_service import RoleService
 from src.utills.security import PasswordHasher, TokenGenerator
 
+
 app_config = AppConfig()
+oauth_config = OAuthConfig()
 jwt_settings = JWTSettings()
+
 token_generator = TokenGenerator(jwt_settings)
 password_hasher = PasswordHasher()
 

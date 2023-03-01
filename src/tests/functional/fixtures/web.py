@@ -4,7 +4,7 @@ import aiohttp.client_exceptions
 
 import pytest
 
-from src.container import app_config
+from src.api_container import app_config
 
 
 def configure_url_params(endpoint: str, query_data: dict = None):

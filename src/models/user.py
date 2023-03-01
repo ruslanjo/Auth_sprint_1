@@ -77,6 +77,21 @@ class UserSignIn(db.Model):
     user = relationship("User", cascade='all, delete', passive_deletes=True)
 
 
+class SocialAccount(db.Model):
+    __tablename__ = 'social_accounts'
+    __table_args__ = (db.UniqueConstraint('social_id', 'provider_name', name='social_pk'),)
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship(User, backref=db.backref('social_accounts', lazy=True))
+
+    social_id = db.Column(db.Text, nullable=False)
+    provider_name = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f'<SocialAccount {self.provider_name}:{self.user_id}>'
+
+
 class Role(db.Model):
     __tablename__ = 'roles'
 

@@ -1,13 +1,18 @@
 from flask import Flask
 from flask_restx import Api
 from flask_migrate import Migrate
+from dotenv import load_dotenv
 
-from src.container import app_config
+from src.api_container import app_config
 from src.core.config import AppConfig
 from src.utills.cli import register_cli
 from src.db import db, init_db
 from src.api.v1.views.auth_view import auth_ns
 from src.api.v1.views.role_view import roles_management_ns
+
+
+load_dotenv('./.environments.stage/.env.auth')
+
 
 api = Api(title='Auth service', doc='/docs')
 migrate = Migrate()
@@ -23,7 +28,9 @@ def create_app(config: AppConfig, rest_api: Api) -> Flask:
 def register_extensions(application: Flask, rest_api: Api):
     init_db(application)
     migrate.init_app(application, db)
-
+    application.app_context().push()
+    db.drop_all()
+    db.create_all()
     rest_api.init_app(application)
     rest_api.add_namespace(auth_ns)
     rest_api.add_namespace(roles_management_ns)

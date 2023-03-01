@@ -33,3 +33,18 @@ class AppConfig(pydantic.BaseSettings):
 
     class Config:
         env_file = '../.environments.stage/.env.auth'
+
+
+class OAuthConfig(pydantic.BaseSettings):
+    yandex_client_id: str = Field(None, env='OAUTH_YANDEX_CLIENT_ID')
+    yandex_client_secret: str = Field(None,  env='OAUTH_YANDEX_CLIENT_SECRET')
+    yandex_auth_code_uri: str = 'https://oauth.yandex.ru/authorize'
+    yandex_redirect_uri: str = 'https://oauth.yandex.ru/verification_code'
+    yandex_token_uri: str = 'https://oauth.yandex.ru/token'
+    yandex_resource_server: str = 'https://login.yandex.ru/info'
+    yandex_oauth_debug: bool = True
+
+    class Config:
+        env_file = '../.environments.stage/.env.auth'
+
+

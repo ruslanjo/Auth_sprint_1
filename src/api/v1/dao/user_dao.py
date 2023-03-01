@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from uuid import uuid4
 
+
 from sqlalchemy.sql import text
 from user_agents import parse
 
-from src.models.user import UserSignIn, User
+from src.models.user import UserSignIn, User, LoginHistory, SocialAccount
+
 
 
 class BaseUser(ABC):
@@ -22,16 +24,22 @@ class UserDAO(BaseUser):
     def __init__(self, session):
         self.session = session
 
-    def add_user(self, login: str, password: str) -> None:
+    def add_user(self, login: str, password: str) -> User:
         new_user = User(
             login=login,
             password=password
         )
         self.session.add(new_user)
         self.session.commit()
+        return new_user
 
     def get_user(self, login: str) -> [None | tuple[str, str]]:
         return self.session.query(User).filter(User.login == login).first()
+
+    def create_social_account(self, new_user: SocialAccount) -> SocialAccount:
+        self.session.add(new_user)
+        self.session.commit()
+        return new_user
 
     def get_user_by_uuid(self, uuid: str) -> None | User:
         return self.session.get(User, uuid)

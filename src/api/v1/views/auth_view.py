@@ -1,10 +1,11 @@
 import http
 
-from user_agents import parse
 from flask import request
 from flask_restx import Namespace, Resource, reqparse
 
-from src.container import auth_service, user_dao
+from src.api_container import auth_service, user_dao
+from user_agents import parse
+
 
 auth_ns = Namespace('api/v1/auth')
 
@@ -36,6 +37,30 @@ class SignUpView(Resource):
         auth_service.signup(login, password)
 
         return {'message': 'User created successfully'}, http.HTTPStatus.CREATED
+
+
+@auth_ns.route('/login/oauth/<provider>/redirect')
+class OauthSignUpView(Resource):
+    @staticmethod
+    def get(provider):
+        # the dict stores the query param with which different providers return auth_code in redirect
+        auth_code_arg_names = {
+            'yandex': 'code'
+        }
+        auth_code = ''
+
+        for code in auth_code_arg_names.values():
+            auth_code = request.args.get(code)
+            if auth_code:
+                break
+
+        if not auth_code:
+            return '', http.HTTPStatus.BAD_REQUEST
+
+        oauth_result = auth_service.oauth_login(provider=provider, auth_code=auth_code)
+        if not oauth_result:
+            return {'message': f'Unable to authenticate using {provider}'}, http.HTTPStatus.UNAUTHORIZED
+        return oauth_result, http.HTTPStatus.OK
 
 
 @auth_ns.route('/login')

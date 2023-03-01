@@ -3,6 +3,8 @@ import calendar
 import datetime
 import hashlib
 import hmac
+import string
+from secrets import choice
 
 import jwt
 
@@ -37,6 +39,10 @@ class PasswordHasher:
         )
         password_hash_digest = base64.b64decode(password_hash)
         return hmac.compare_digest(given_password_digest, password_hash_digest)
+
+    def generate_random_string(self):
+        alphabet = string.ascii_letters + string.digits
+        return ''.join(choice(alphabet) for _ in range(16))
 
 
 class TokenGenerator:
