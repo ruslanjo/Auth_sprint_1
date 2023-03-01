@@ -4,7 +4,7 @@ import json
 from flask import request
 from flask_restx import Namespace, Resource
 
-from src.container import role_service
+from src.api_container import role_service
 from src.models.user import role_schema, roles_schema
 from src.utills.role_management import role_required
 

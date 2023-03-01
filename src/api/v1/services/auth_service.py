@@ -3,7 +3,7 @@ from typing import Any
 from src.api.v1.dao.user_dao import UserDAO
 from src.models.user import SocialAccount
 from src.db import RedisConnection
-from src.container import oauth_managers
+from src.oauth_container import oauth_managers
 
 
 class AuthService:
@@ -34,16 +34,18 @@ class AuthService:
     def login(
             self,
             login: str,
-            password: str,
+            password: str = None,  # None if OUAuth
+            is_oauth: bool = False
     ) -> None | dict:
         user = self.user_dao.get_user(
             login
         )
         if user is None:
             return None
-        check_password = self.password_hasher.compare_passwords(password, user.password)
-        if not check_password:
-            return None
+        if not is_oauth:
+            check_password = self.password_hasher.compare_passwords(password, user.password)
+            if not check_password:
+                return None
 
         user_roles = ', '.join(role.name for role in user.roles)
         access_token, refresh_token = self.create_new_jwt_tokens(
@@ -57,7 +59,8 @@ class AuthService:
             "refresh_token": refresh_token
         }
 
-    def oauth_login(self, provider: str, auth_code: str):
+    @staticmethod
+    def oauth_get_data_from_provider(provider: str, auth_code: str):
         oauth_manager = oauth_managers.get(provider)
         if not oauth_manager:
             return None
@@ -65,23 +68,38 @@ class AuthService:
         token_data = oauth_manager.get_tokens(auth_code)
         if not token_data:
             return None
-        # TODO добавить пуш рефреш токена в редис
+
         user_data = oauth_manager.exchange_token_on_data(token_data['access_token'])
-        social_acc_uid = user_data.get(oauth_manager.user_id_api_field)
-        user = self.user_dao.get_user_by_social_account(social_acc_uid, provider)
+        return user_data
+
+    def oauth_create_user(self, provider: str, social_id: str):
+        # creating user in User model firstly
+        login = f'{social_id}{provider}'
+        user = self.user_dao.add_user(login, self.password_hasher.generate_random_string())
+
+        # linking social account
+        new_user = SocialAccount(
+            user_id=user.id,
+            provider_name=provider,
+            social_id=social_id
+        )
+        self.user_dao.create_social_account(new_user)
+
+    def oauth_login(self, provider: str, auth_code: str):
+        user_data = self.oauth_get_data_from_provider(provider, auth_code)
+        if not user_data:
+            return None
+
+        oauth_manager = oauth_managers.get(provider)
+        social_id = user_data.get(oauth_manager.user_id_api_field)
+
+        login = f'{social_id}{provider}'
+        user = self.user_dao.get_user(login)
 
         if not user:
-            self.oauth_create_user(social_acc_uid, provider)
+            self.oauth_create_user(provider, social_id)
 
-        # TODO добавить ниже выдачу access и рефреш токенов
-
-    def oauth_create_user(self, uid: str, provider: str):
-        new_user = SocialAccount(
-            provider_name=provider,
-            social_id=uid
-        )
-        return self.user_dao.create_social_account(new_user)
-
+        return self.login(login=login, is_oauth=True)
 
     def create_new_jwt_tokens(self, login: str, roles: str) -> tuple:
         refresh_token_lifetime = self.jwt_config['refresh_token_lifetime']

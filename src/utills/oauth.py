@@ -5,7 +5,10 @@ import urllib.parse
 
 import requests
 
-from src.container import oauth_config
+from src.core.config import OAuthConfig
+
+
+oauth_config = OAuthConfig()  # fix of circular imports
 
 
 class OAuthManager(abc.ABC):
@@ -90,7 +93,7 @@ class YandexOAuth(OAuthManager):
         headers = {'Authorization': f'OAuth {access_token}'}
 
         user_data = requests.post(url=oauth_config.yandex_resource_server,
-                                  headers={headers}
+                                  headers=headers
                                   )
         if user_data.status_code == http.HTTPStatus.UNAUTHORIZED:
             return None

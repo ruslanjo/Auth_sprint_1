@@ -4,7 +4,7 @@ from functools import wraps
 from flask import request
 
 
-from src.container import token_generator
+from src.api_container import token_generator
 
 
 def unauthorized_response():

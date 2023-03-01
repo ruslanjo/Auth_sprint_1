@@ -4,7 +4,7 @@ import sqlalchemy.exc
 from flask import Flask
 
 from src.models.user import Role, User
-from src.container import password_hasher
+from src.api_container import password_hasher
 
 
 def register_cli(application: Flask, db_obj):
