@@ -33,6 +33,7 @@ class AuthService:
             self,
             login: str,
             password: str,
+            user_agent
     ) -> None | dict:
         user = self.user_dao.get_user(
             login
@@ -48,14 +49,19 @@ class AuthService:
             login, user_roles
         )
         self.user_dao.add_login_history(
-            user.id
+            user.id,
+            user_agent
         )
         return {
             "access_token": access_token,
             "refresh_token": refresh_token
         }
 
-    def create_new_jwt_tokens(self, login: str, roles: str) -> tuple:
+    def create_new_jwt_tokens(
+            self,
+            login: str,
+            roles: str
+    ) -> tuple:
         refresh_token_lifetime = self.jwt_config['refresh_token_lifetime']
         access, refresh = self.token_generator.generate_refresh_and_access_tokens(
             {'login': login,
@@ -68,7 +74,10 @@ class AuthService:
         )
         return access, refresh
 
-    def get_refresh_token(self, refresh_token: str) -> tuple[Any, Any] | None:
+    def get_refresh_token(
+            self,
+            refresh_token: str
+    ) -> tuple[Any, Any] | None:
         result = self.token_generator.check_jwt_token(refresh_token)
         if result.get('result') is False:
             return None
@@ -86,7 +95,11 @@ class AuthService:
             )
         return None
 
-    def logout(self, access_token: str, refresh_token: str) -> None:
+    def logout(
+            self,
+            access_token: str,
+            refresh_token: str
+    ) -> None:
         access_token_lifetime = self.jwt_config['access_token_lifetime']
         check_access = self.token_generator.check_jwt_token(access_token)
         check_refresh = self.token_generator.check_jwt_token(refresh_token)
@@ -107,6 +120,9 @@ class AuthService:
             user_login = check_refresh.get('data').get('login')
             self.redis.delete_key('refresh_token_' + str(user_login))
 
-    def login_history(self, login: str) -> list[dict]:
+    def login_history(
+            self,
+            login: str
+    ) -> list[dict]:
         user_history = self.user_dao.get_login_history(login=login)
         return user_history

@@ -4,6 +4,7 @@ from datetime import datetime
 from marshmallow import Schema, fields
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+from sqlalchemy import UniqueConstraint
 
 from src.db import db
 
@@ -13,7 +14,6 @@ user_role = db.Table(
     db.Column('user_id', UUID, db.ForeignKey('users.id', ondelete='CASCADE')),
     db.Column('role_id', UUID, db.ForeignKey('roles.id', ondelete='CASCADE'))
 )
-
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -39,12 +39,19 @@ class User(db.Model):
         return f'<User {self.login}>'
 
 
-class LoginHistory(db.Model):
-    __tablename__ = 'login_history'
-
-    uuid = db.Column(
-        db.String(36),
-        primary_key=True
+class UserSignIn(db.Model):
+    __tablename__ = 'users_sign_in'
+    __table_args__ = (
+        UniqueConstraint('id', 'user_device_type'),
+        {
+            'postgresql_partition_by': 'LIST (user_device_type)',
+        }
+    )
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        nullable=False
     )
     user_id = db.Column(
         UUID(as_uuid=True),
@@ -58,10 +65,18 @@ class LoginHistory(db.Model):
         db.DateTime,
         default=datetime.now()
     )
+    user_agent = db.Column(
+        db.Text
+    )
+    user_device_type = db.Column(
+        db.Text,
+        primary_key=True,
+        default='web'
+    )
 
     user = relationship("User", cascade='all, delete', passive_deletes=True)
-    
-    
+
+
 class Role(db.Model):
     __tablename__ = 'roles'
 
